@@ -33,9 +33,9 @@ int main(int argc, char *argv[]) {
   int messi=0;
 
   if(argc == 1){
-    char * mess;
-    asprintf(&mess, "uso: ./%s <num_1> <num_2> [<num_1> <num_2> ...]", argv[0]);
-  termina(mess);
+    printf( "uso: ./%s <num_1> <num_2> [<num_1> <num_2> ...]", argv[0]);
+    free(v);
+    exit(1);
   }
 
   for(int i=1; i<argc-1; i+=2){
@@ -44,6 +44,7 @@ int main(int argc, char *argv[]) {
 
   mergesort(v,messi);
   stampa_coppie(v, messi);
+  free(v);
 
   return 0;
 }
