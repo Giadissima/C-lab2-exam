@@ -12,14 +12,14 @@ void termina(const char *messaggio){
   exit(1);
 }
 
-// questa funzione legge un file e carica un vettore contenente le righe
-void leggi_file(char * path, int * v[], int * dimV, int *maxSize){
-  *maxSize=10;
-  if(*dimV != 0){
-    free(v);
-    *dimV=0;
-  }
-  *v = malloc(*maxSize*sizeof(int));
+// questa funzione legge un file con all'interno dei numeri e li carica in un vettore dinamico
+int* caricaIntDaFile(char * path, int *size){
+  *size=0;
+  int maxSize=10;
+  
+  int *v = malloc(maxSize*sizeof(int));
+  if(v==NULL)
+    termina("Memoria insufficiente");
   FILE *f = fopen(path, "rt");
   if(f==NULL){
     termina("Non è stato possibile aprire il file");
@@ -31,35 +31,76 @@ void leggi_file(char * path, int * v[], int * dimV, int *maxSize){
     if(e != EOF){
       if(e!=1) termina("contenuto illegale del file");
       // caso in cui ho preso correttamente un numero
-      if(maxSize==dimV){
-        *maxSize *= 2;
-        *v = realloc(v, *maxSize*sizeof(int));
+      if(maxSize==*size){
+        maxSize *= 2;
+        v = realloc(v, maxSize*sizeof(int));
+        if(v==NULL)
+          termina("Memoria insufficiente");
       }
-      (*v)[*dimV]=n;
-      (*dimV)++;
+      v[*size]=n;
+      (*size)++;
 
     }
   }while(e!=EOF);
+  return v;
 
 }
-// questa funzione legge un file e carica un vettore contenente i numeri contenenti nelle righe
-// void leggi_file(char * path, int * v){
 
+// questa funzione legge un file con all'interno una stringa e la carica in un vettore dinamico di caratteri
+char* caricaStrDaFile(char * path, int *size){ // size va passata per riferimento
+  *size=0;
+  int maxSize=10;
 
-// }
+  char *v = malloc(maxSize*sizeof(int));
+  if(v==NULL)
+    termina("Memoria insufficiente");
+  FILE *f = fopen(path, "rt");
+  if(f==NULL){
+    termina("Non è stato possibile aprire il file");
+  }
+  int e;
+  do{
+    int n;
+    e = fscanf(f, "%c", &n);
+    if(e != EOF){
+      if(e!=1) termina("contenuto illegale del file");
+        // caso in cui ho preso correttamente un numero
+        if(maxSize==*size){
+          maxSize *= 2;
+          v = realloc(v, maxSize*sizeof(int));
+          if(v==NULL)
+            termina("Memoria insufficiente");
+          }
+      v[*size]=n;
+      (*size)++;
 
-void stampa_vett(int **v, int dimV){
+    }
+  }while(e!=EOF);
+  return v;
+}
+
+void stampaIntVett(int *v, int dimV){
+  assert(v!=NULL);
+  // stampo il contenuto dell'array
   for(int i = 0; i<dimV; i++){
-    printf("%d", &v[i]);
+    printf("%do numero: %d\n",i, v[i]);
   }
 }
 
-int main(int argc, char const *argv[]) {
-  char * file_path = "input.txt";
-  int *v;
-  int dimV=0;
-  int sizeMax=0;
-  leggi_file(file_path, v, &dimV, &sizeMax);
+void stampaCharVett(char *v, int dimV){
+  assert(v!=NULL);
+  // stampo il contenuto dell'array
+  for(int i = 0; i<dimV; i++){
+    printf("%c",v[i]);
+  }
+puts("\n");
+}
+
+int main() {
+  char * file_path = "input2.txt";
+  int size=0;
+  char *v = caricaStrDaFile(file_path, &size);
+  stampaCharVett(v, size);
 
   return 0;
 }
