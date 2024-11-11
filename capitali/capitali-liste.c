@@ -1,73 +1,112 @@
-#define _GNU_SOURCE // avverte che usiamo le estensioni GNU
-#include <assert.h> // permette di usare la funzione assert
-#include <errno.h> // necessaria per usare errno
+#define _GNU_SOURCE  // avverte che usiamo le estensioni GNU
+#include <assert.h>  // permette di usare la funzione assert
+#include <errno.h>   // necessaria per usare errno
 #include <stdbool.h> // gestisce tipo bool (per variabili booleane)
-#include <stdio.h> // permette di usare scanf printf etc ...
-#include <stdlib.h> // conversioni stringa/numero exit() etc ...
-#include <string.h> // funzioni di confronto/copia/etc di stringhe
+#include <stdio.h>   // permette di usare scanf printf etc ...
+#include <stdlib.h>  // conversioni stringa/numero exit() etc ...
+#include <string.h>  // funzioni di confronto/copia/etc di stringhe
 
-void termina(const char* messaggio);
+void termina(const char *messaggio);
 
-typedef struct Capitale{
-    char* nome;
+typedef struct Capitale {
+  char *nome;
+  double latitudine;
+  double longitudine;
+  struct Capitale *next;
+} Capitale;
+/*Leggere dal file capitali delle capitali con nome, latitudine e longitudine e
+ * fare il mergesort per latitudine*/
+
+void libera_capitali(Capitale *testa) {
+  if(testa == NULL) return;
+  libera_capitali(testa->next);
+  free(testa->nome);
+  free(testa);
+}
+
+void aggiungi_capitale_testa(Capitale **testa, char *nome, double latitudine,
+                             double longitudine) {
+  Capitale *newCapitale = malloc(sizeof(Capitale));
+  newCapitale->nome = nome;
+  newCapitale->latitudine= latitudine;
+  newCapitale->longitudine=longitudine;
+  if (*testa == NULL) {
+    *testa=newCapitale;
+    newCapitale->next=NULL;
+  } else{
+    newCapitale->next=*testa;
+    *testa=newCapitale;
+  }
+}
+
+
+// aggiunta di un elemento in maniera ordinata in una lista per nome
+void aggiungi_capitale_ordinata_nome(Capitale **testa, char *nome, double latitudine,
+                             double longitudine) {
+   // Caso base: inserisci in testa se la lista è vuota o se il nuovo nodo va all'inizio
+  if (*testa == NULL || strcmp(nome, (*testa)->nome) < 0) {
+    Capitale *newCapitale = malloc(sizeof(Capitale));
+    newCapitale->nome = nome;
+    newCapitale->latitudine = latitudine;
+    newCapitale->longitudine = longitudine;
+    newCapitale->next = *testa;
+    *testa = newCapitale;
+    return;
+  }
+
+  // Ricorsione per trovare la posizione corretta
+  // Se il nome corrente nella lista è minore del nuovo nome, continua a cercare
+  aggiungi_capitale_ordinata_nome(&(*testa)->next, nome, latitudine, longitudine);
+}
+
+
+// questa funzione legge un file con all'interno una stringa e la carica in una lista di Capitale
+void caricaCapitaliDaFile(const char *path, Capitale ** testa) {
+  
+  // apertura del file
+  FILE *f = fopen(path, "rt");
+  if (f == NULL) {
+    termina("Non è stato possibile aprire il file");
+  }
+
+  int e;
+  while(true) {
+    char *nome;
     double latitudine;
     double longitudine;
-    struct Capitale * next=NULL; 
-} Capitale;
-/*Leggere dal file capitali delle capitali con nome, latitudine e longitudine e fare il mergesort per latitudine*/
-
-// questa funzione legge un file con all'interno una stringa e la carica in un vettore dinamico di caratteri
-Capitale** caricaCapitaliDaFile(char* path, int* size)
-{ // size va passata per riferimento
-    *size = 0;
-    int maxSize = 10;
-
-    Capitale** v = malloc(maxSize * sizeof(Capitale*));
-    if (v == NULL)
-        termina("Memoria insufficiente");
-    FILE* f = fopen(path, "rt");
-    if (f == NULL) {
-        termina("Non è stato possibile aprire il file");
-    }
-    int e;
-    do {
-        v[*size] = malloc(sizeof(Capitale));
-        if (v[*size] == NULL)
-            termina("Memoria insufficiente");
-        e = fscanf(f, "%ms %lf %lf", &(v[*size]->nome), &(v[*size]->longitudine), &(v[*size]->latitudine));
-        if (e != EOF) {
-            if (e != 3)
-            {
-                printf("%s",v[*size]->nome);
-                termina("contenuto illegale del file");
-            }
-            else puts("sto prendendo una riga correttamente");
-            (*size)++;
-            // caso in cui ho preso correttamente un numero
-            if (maxSize == *size) {
-                maxSize *= 2;
-                v = realloc(v, maxSize * sizeof(Capitale*));
-                if (v == NULL)
-                    termina("Memoria insufficiente");
-            }
-        }
-    } while (e != EOF);
-    fclose(f);
-    return v;
+    e = fscanf(f, "%ms %lf %lf", &nome, &latitudine, &longitudine);
+    if (e == EOF) break;
+      if (e != 3) {
+        free(nome);
+        termina("contenuto illegale del file");
+      }
+      aggiungi_capitale_ordinata_nome(testa, nome, latitudine, longitudine);
+  };
+  fclose(f);
 }
 
-int main(int argc, char const* argv[])
-{
-    int dim = 0;
-    caricaCapitaliDaFile("../capitali.txt", &dim);
-    return 0;
+void stampaCapitali(Capitale *testa) {
+  if(testa==NULL)
+    printf("Lista delle capitali vuota, niente da visualizzare...");
+  while(testa != NULL){
+    printf("%s %lf %lf\n", testa->nome, testa->latitudine, testa->longitudine);
+    testa = testa ->next;
+  }
 }
 
-void termina(const char* messaggio)
-{
-    if (errno != 0)
-        perror(messaggio);
-    else
-        fprintf(stderr, "%s\n", messaggio);
-    exit(1);
+int main(int argc, char const *argv[]) {
+  Capitale *testa=NULL;
+  // TODO argv e free
+  caricaCapitaliDaFile(argv[1], &testa);
+  stampaCapitali(testa);
+  libera_capitali(testa);
+  return 0;
+}
+
+void termina(const char *messaggio) {
+  if (errno != 0)
+    perror(messaggio);
+  else
+    fprintf(stderr, "%s\n", messaggio);
+  exit(1);
 }
