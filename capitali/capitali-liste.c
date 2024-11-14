@@ -59,6 +59,25 @@ void aggiungi_capitale_ordinata_nome(Capitale **testa, char *nome, double latitu
   aggiungi_capitale_ordinata_nome(&(*testa)->next, nome, latitudine, longitudine);
 }
 
+// cancella tutti i nodi di una lista con latitudine > k
+void cancellaCoordinate(Capitale ** testa, double k) // k= chiave di ricerca
+{
+  if((*testa)==NULL) return;
+  if((*testa)->latitudine > k){
+    Capitale *tmp = (*testa)->next;
+    free((*testa)->nome);
+    free((*testa));
+    (*testa)=tmp;
+  }
+  if((*testa)->next!=NULL && (*testa)->next->latitudine > k){
+    Capitale *tmp = (*testa)->next->next;
+    free((*testa)->next->nome);
+    free((*testa)->next);
+    (*testa)->next=tmp;
+  }
+  cancellaCoordinate(&(*testa)->next, k);
+}
+
 
 // questa funzione legge un file con all'interno una stringa e la carica in una lista di Capitale
 void caricaCapitaliDaFile(const char *path, Capitale ** testa) {
@@ -98,6 +117,7 @@ int main(int argc, char const *argv[]) {
   Capitale *testa=NULL;
   // TODO argv e free
   caricaCapitaliDaFile(argv[1], &testa);
+  cancellaCoordinate(&testa, 47);
   stampaCapitali(testa);
   libera_capitali(testa);
   return 0;
