@@ -19,13 +19,13 @@ typedef struct AlberoCapitale {
 /*Leggere dal file capitali delle capitali con nome, latitudine e longitudine e
  * fare il mergesort per latitudine*/
 void libera_capitali(AlberoCapitale *radice) {
-  if(radice == NULL) return;
+  if (radice == NULL)
+    return;
   libera_capitali(radice->sinistra);
   libera_capitali(radice->destra);
   free(radice->nome);
   free(radice);
 }
-
 
 /*
   insert(node_to_insert: NodoABR<T>, start: NodoABR<T> = this.root){
@@ -43,47 +43,33 @@ void libera_capitali(AlberoCapitale *radice) {
 
 /*Aggiunge le capitali sull'albero prima a sinistra e poi a destra*/
 void aggiungi_capitale(AlberoCapitale **radice, char *nome, double latitudine,
-                             double longitudine) {
-  if(radice == NULL) return; 
-    if(strcmp((*radice)->nome, nome) == 0) return; // il nodo è una ripetizione quindi esco
-    if(strcmp((*radice)->nome, nome) < 0){
-      if((*radice)->destra == NULL) (*radice)->destra = node_to_insert;
-      else this.insert(node_to_insert, (*radice)->destra);
-    } else{
-      if((*radice)->left === null) (*radice)->left = node_to_insert;
-      else this.insert(node_to_insert, (*radice)->left);
-    }
+                       double longitudine) {
+  AlberoCapitale *node_to_insert = malloc(sizeof(AlberoCapitale));
+  if (node_to_insert == NULL)
+    termina("Memoria insufficiente");
+  if (radice == NULL)
     return;
+  if (strcmp((*radice)->nome, nome) == 0)
+    return; // il nodo è una ripetizione quindi esco
+  if (strcmp((*radice)->nome, nome) < 0) {
+    if ((*radice)->destra == NULL)
+      (*radice)->destra = node_to_insert;
+    else
+      aggiungi_capitale(&((*radice)->destra), nome, latitudine, longitudine);
+  } else {
+    if ((*radice)->sinistra == NULL)
+      (*radice)->sinistra = node_to_insert;
+    else
+      aggiungi_capitale(&((*radice)->sinistra), nome, latitudine, longitudine);
+    ;
   }
-
-  while(radice->sinistra)
+  return;
 }
 
+// questa funzione legge un file con all'interno una stringa e la carica in una
+// lista di Capitale
+void caricaCapitaliDaFile(const char *path, AlberoCapitale **radice) {
 
-
-// aggiunta di un elemento in maniera ordinata in una lista per nome
-void aggiungi_capitale_ordinata_nome(AlberoCapitale **radice, char *nome, double latitudine,
-                             double longitudine) {
-   // Caso base: inserisci in testa se la lista è vuota o se il nuovo nodo va all'inizio
-  if (*radice == NULL || strcmp(nome, (*radice)->nome) < 0) {
-    AlberoCapitale *newCapitale = malloc(sizeof(AlberoCapitale));
-    newCapitale->nome = nome;
-    newCapitale->latitudine = latitudine;
-    newCapitale->longitudine = longitudine;
-    newCapitale->sinistra = *radice;
-    *radice = newCapitale;
-    return;
-  }
-
-  // Ricorsione per trovare la posizione corretta
-  // Se il nome corrente nella lista è minore del nuovo nome, continua a cercare
-  aggiungi_capitale_ordinata_nome(&(*radice)->sinistra, nome, latitudine, longitudine);
-}
-
-
-// questa funzione legge un file con all'interno una stringa e la carica in una lista di Capitale
-void caricaCapitaliDaFile(const char *path, AlberoCapitale ** radice) {
-  
   // apertura del file
   FILE *f = fopen(path, "rt");
   if (f == NULL) {
@@ -91,31 +77,32 @@ void caricaCapitaliDaFile(const char *path, AlberoCapitale ** radice) {
   }
 
   int e;
-  while(true) {
+  while (true) {
     char *nome;
     double latitudine;
     double longitudine;
     e = fscanf(f, "%ms %lf %lf", &nome, &latitudine, &longitudine);
-    if (e == EOF) break;
-      if (e != 3) {
-        free(nome);
-        termina("contenuto illegale del file");
-      }
-      aggiungi_capitale(radice, nome, latitudine, longitudine);
+    if (e == EOF)
+      break;
+    if (e != 3) {
+      free(nome);
+      termina("contenuto illegale del file");
+    }
+    aggiungi_capitale(radice, nome, latitudine, longitudine);
   };
   fclose(f);
 }
 
 void stampaCapitali(AlberoCapitale *radice) {
-  if(radice == NULL) return;
+  if (radice == NULL)
+    return;
   printf("%s %lf %lf\n", radice->nome, radice->latitudine, radice->longitudine);
   stampaCapitali(radice->sinistra);
   stampaCapitali(radice->destra);
-  
 }
 
 int main(int argc, char const *argv[]) {
-  AlberoCapitale *radice=NULL;
+  AlberoCapitale *radice = NULL;
   caricaCapitaliDaFile(argv[1], &radice);
   stampaCapitali(radice);
   libera_capitali(radice);
