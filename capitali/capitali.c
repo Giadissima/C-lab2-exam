@@ -12,7 +12,7 @@ typedef struct {
     char* nome;
     double latitudine;
     double longitudine;
-} Capitale;
+} AlberoCapitale;
 /*Leggere dal file capitali delle capitali con nome, latitudine e longitudine e fare il mergesort per latitudine*/
 
 void libera_capitali(Capitale** c, int size){

@@ -8,25 +8,25 @@
 
 void termina(const char *messaggio);
 
-typedef struct Capitale {
+typedef struct AlberoCapitale {
   char *nome;
   double latitudine;
   double longitudine;
-  struct Capitale *next;
-} Capitale;
+  struct AlberoCapitale *next;
+} AlberoCapitale;
 /*Leggere dal file capitali delle capitali con nome, latitudine e longitudine e
  * fare il mergesort per latitudine*/
 
-void libera_capitali(Capitale *testa) {
+void libera_capitali(AlberoCapitale *testa) {
   if(testa == NULL) return;
   libera_capitali(testa->next);
   free(testa->nome);
   free(testa);
 }
 
-void aggiungi_capitale_testa(Capitale **testa, char *nome, double latitudine,
+void aggiungi_capitale(AlberoCapitale **testa, char *nome, double latitudine,
                              double longitudine) {
-  Capitale *newCapitale = malloc(sizeof(Capitale));
+  AlberoCapitale *newCapitale = malloc(sizeof(AlberoCapitale));
   newCapitale->nome = nome;
   newCapitale->latitudine= latitudine;
   newCapitale->longitudine=longitudine;
@@ -41,11 +41,11 @@ void aggiungi_capitale_testa(Capitale **testa, char *nome, double latitudine,
 
 
 // aggiunta di un elemento in maniera ordinata in una lista per nome
-void aggiungi_capitale_ordinata_nome(Capitale **testa, char *nome, double latitudine,
+void aggiungi_capitale_ordinata_nome(AlberoCapitale **testa, char *nome, double latitudine,
                              double longitudine) {
    // Caso base: inserisci in testa se la lista è vuota o se il nuovo nodo va all'inizio
   if (*testa == NULL || strcmp(nome, (*testa)->nome) < 0) {
-    Capitale *newCapitale = malloc(sizeof(Capitale));
+    AlberoCapitale *newCapitale = malloc(sizeof(AlberoCapitale));
     newCapitale->nome = nome;
     newCapitale->latitudine = latitudine;
     newCapitale->longitudine = longitudine;
@@ -61,7 +61,7 @@ void aggiungi_capitale_ordinata_nome(Capitale **testa, char *nome, double latitu
 
 
 // questa funzione legge un file con all'interno una stringa e la carica in una lista di Capitale
-void caricaCapitaliDaFile(const char *path, Capitale ** testa) {
+void caricaCapitaliDaFile(const char *path, AlberoCapitale ** testa) {
   
   // apertura del file
   FILE *f = fopen(path, "rt");
@@ -85,7 +85,7 @@ void caricaCapitaliDaFile(const char *path, Capitale ** testa) {
   fclose(f);
 }
 
-void stampaCapitali(Capitale *testa) {
+void stampaCapitali(AlberoCapitale *testa) {
   if(testa==NULL)
     printf("Lista delle capitali vuota, niente da visualizzare...");
   while(testa != NULL){
@@ -95,7 +95,7 @@ void stampaCapitali(Capitale *testa) {
 }
 
 int main(int argc, char const *argv[]) {
-  Capitale *testa=NULL;
+  AlberoCapitale *testa=NULL;
   // TODO argv e free
   caricaCapitaliDaFile(argv[1], &testa);
   stampaCapitali(testa);
