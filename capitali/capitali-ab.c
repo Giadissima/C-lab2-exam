@@ -40,30 +40,40 @@ void libera_capitali(AlberoCapitale *radice) {
     }
   }
 */
+AlberoCapitale *crea_nodo(char *nome, double latitudine, double longitudine) {
+  AlberoCapitale *node_to_insert = malloc(sizeof(AlberoCapitale));
+  if (node_to_insert == NULL)
+    termina("Memoria insufficiente\n");
+  node_to_insert->destra = NULL;
+  node_to_insert->sinistra = NULL;
+  node_to_insert->nome = nome;
+  node_to_insert->latitudine = latitudine;
+  node_to_insert->longitudine = longitudine;
+  return node_to_insert;
+}
 
 /*Aggiunge le capitali sull'albero prima a sinistra e poi a destra*/
 void aggiungi_capitale(AlberoCapitale **radice, char *nome, double latitudine,
                        double longitudine) {
-  AlberoCapitale *node_to_insert = malloc(sizeof(AlberoCapitale));
-  if (node_to_insert == NULL)
-    termina("Memoria insufficiente");
-  if (radice == NULL)
+  if (*radice == NULL) {
+    *radice = crea_nodo(nome, latitudine, longitudine);
     return;
-  if (*radice == NULL)
-    radice = &node_to_insert;
-  if (strcmp((*radice)->nome, nome) == 0)
+  }
+  if (strcmp((*radice)->nome, nome) == 0) {
     return; // il nodo è una ripetizione quindi esco
+  }
   if (strcmp((*radice)->nome, nome) < 0) {
-    if ((*radice)->destra == NULL)
-      (*radice)->destra = node_to_insert;
-    else
-      aggiungi_capitale(&((*radice)->destra), nome, latitudine, longitudine);
+    if ((*radice)->destra == NULL) {
+      (*radice)->destra = crea_nodo(nome, latitudine, longitudine);
+      return;
+    }
+    aggiungi_capitale(&((*radice)->destra), nome, latitudine, longitudine);
   } else {
-    if ((*radice)->sinistra == NULL)
-      (*radice)->sinistra = node_to_insert;
-    else
-      aggiungi_capitale(&((*radice)->sinistra), nome, latitudine, longitudine);
-    ;
+    if ((*radice)->sinistra == NULL) {
+      (*radice)->sinistra = crea_nodo(nome, latitudine, longitudine);
+      return;
+    }
+    aggiungi_capitale(&((*radice)->sinistra), nome, latitudine, longitudine);
   }
   return;
 }
