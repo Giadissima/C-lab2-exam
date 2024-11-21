@@ -49,6 +49,8 @@ void aggiungi_capitale(AlberoCapitale **radice, char *nome, double latitudine,
     termina("Memoria insufficiente");
   if (radice == NULL)
     return;
+  if (*radice == NULL)
+    radice = &node_to_insert;
   if (strcmp((*radice)->nome, nome) == 0)
     return; // il nodo è una ripetizione quindi esco
   if (strcmp((*radice)->nome, nome) < 0) {

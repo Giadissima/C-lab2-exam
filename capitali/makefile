@@ -5,3 +5,6 @@ CC=gcc
 CFLAGS=-std=c11 -Wall -O -g
 LDLIBS=-lm
 OUTPUT_DIR=output
+
+%: %.c
+	$(CC) $(CFLAGS) -o $@ $^ $(LDLIBS)
