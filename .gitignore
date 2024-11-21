@@ -3,3 +3,4 @@ output
 launch.json
 tasks.json
 .vscode/*
+.vscode/settings.json
