@@ -2,4 +2,4 @@ output
 .vscode
 launch.json
 tasks.json
-.vscode
+.vscode/*
